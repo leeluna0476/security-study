@@ -1,2 +1,2 @@
 # security-study
-2026. 03. ~ 2026. 08. Security Study.
+2026. Mar. ~ 2026. Aug. Security Study.
