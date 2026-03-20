@@ -18,3 +18,9 @@ qemu-system-x86_64 -m 4G -drive file=ubuntu_disk.qcow2 -cdrom ubuntu-24.04.4-liv
 ```
 - no `-boot d`.
   - boots from the disk which has the OS installed on it
+## 4. Port-forwarding
+```bash
+qemu-system-x86_64 -m 4G -drive file=$DISK -netdev user,id=net0,hostfwd=tcp::$SSHPORT-:22 -device virtio-net-pci,netdev=net0
+```
+- Example: setup port-forwarding to ssh server
+  - Host port $SSHPORT => Guest port 22 (ssh server port)
