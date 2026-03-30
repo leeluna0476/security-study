@@ -50,7 +50,7 @@ End of assembler dump.
 
 ## after strcmp
 - "AAAA-key-1234" vs "AAAA-Z10N-42-OK"
-```
+```asm
 0x00005555555551f6 in main ()
 (gdb) info registers
 [[[[rax            0x11                17]]]]
@@ -85,7 +85,7 @@ gs_base        0x0                 0
 - input: `AAAA` -> must jump to `printf("WRONG!\n");`
 - changed the `rax (the result of strcmp stored originally)` value to `0`
 - -> jumped to `printf("Access Granted!\n");`
-```
+```asm
 (gdb) ni
 0x00005555555551e1 in main ()
 (gdb) info registers
