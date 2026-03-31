@@ -212,3 +212,10 @@ End of assembler dump.
   - \0을 읽었으니 EOF? 놉. \0이랑 EOF랑 다르다. \0 포함해서 white-space 나오기 전까지 읽을 수 있다.
 - 100B 처리하고 나서 파일 포인터는 passcode2 부분을 가리킨다.
 - passcode2는 어떻게 쓰냐 하...
+```asm
+pwndbg> x $ebp - 0x10
+0xff920078:	0x0001e240
+pwndbg> x $ebp - 0xc
+0xff92007c:	0x47906d00
+```
+- passcode2 안된다고 안된다고 ㅜㅜㅜ
