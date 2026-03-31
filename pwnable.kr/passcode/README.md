@@ -268,7 +268,7 @@ pwndbg> x $ebp - 0x10
  80490ab:	e9 80 ff ff ff       	jmp    8049030 <_init+0x30>
  ```
 
-**입력 데이터 생성 스크립트:** `exploit.py`
+**입력 데이터 생성 스크립트:** [`exploit.py`](exploit.py)
 
 -> 성공.
 
