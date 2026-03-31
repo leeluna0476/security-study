@@ -204,6 +204,7 @@ End of assembler dump.
 
 **welcome: scanf 호출 방식**
 `scanf("%100s", name);`
+
 **입력 데이터**
 - 96B: 아무 값, 4B: 123456(passcode1), 4B: 1337133(passcode2).
 - 100B는 먼저 scanf 내부 버퍼에 저장되고, name에 저장하면서 소비된다.
