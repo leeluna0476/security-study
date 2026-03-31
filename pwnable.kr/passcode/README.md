@@ -63,6 +63,8 @@ Dump of assembler code for function welcome:
    ; esp = ebp - 100, push -> esp = ebp - 108 - 4 = ebp - 112
    ; -> esp = ebp - 0x70
    ; 에에 그냥 그 자리에 똑같은 거 push한 거네
+   ; lea: 데이터가 저장된 위치의 주소 계산. c언어의 &연산과 동일.
+   ; int *p = ebp - 0x70; int *eax = &(*p); 이것과 비슷하다.
    0x08049324 <+50>:	lea    eax,[ebp-0x70]
    0x08049327 <+53>:	push   eax
    ; <abi386>
@@ -94,3 +96,117 @@ Dump of assembler code for function welcome:
    0x08049363 <+113>:	ret
 End of assembler dump.
 ```
+
+**login dump**
+```asm
+pwndbg> disassemble login
+Dump of assembler code for function login:
+   0x080491f6 <+0>:	push   ebp
+   0x080491f7 <+1>:	mov    ebp,esp
+   0x080491f9 <+3>:	push   esi
+   0x080491fa <+4>:	push   ebx
+   0x080491fb <+5>:	sub    esp,0x10
+   0x080491fe <+8>:	call   0x8049130 <__x86.get_pc_thunk.bx>
+   0x08049203 <+13>:	add    ebx,0x2dfd
+   0x08049209 <+19>:	sub    esp,0xc
+   0x0804920c <+22>:	lea    eax,[ebx-0x1ff8]
+   0x08049212 <+28>:	push   eax
+   0x08049213 <+29>:	call   0x8049050 <printf@plt>
+   0x08049218 <+34>:	add    esp,0x10
+   0x0804921b <+37>:	sub    esp,0x8
+   0x0804921e <+40>:	push   DWORD PTR [ebp-0x10]
+   0x08049221 <+43>:	lea    eax,[ebx-0x1fe5]
+   0x08049227 <+49>:	push   eax
+   0x08049228 <+50>:	call   0x80490d0 <__isoc99_scanf@plt>
+   0x0804922d <+55>:	add    esp,0x10
+   0x08049230 <+58>:	mov    eax,DWORD PTR [ebx-0x4]
+   0x08049236 <+64>:	mov    eax,DWORD PTR [eax]
+   0x08049238 <+66>:	sub    esp,0xc
+   0x0804923b <+69>:	push   eax
+   0x0804923c <+70>:	call   0x8049060 <fflush@plt>
+   0x08049241 <+75>:	add    esp,0x10
+   0x08049244 <+78>:	sub    esp,0xc
+   0x08049247 <+81>:	lea    eax,[ebx-0x1fe2]
+   0x0804924d <+87>:	push   eax
+   0x0804924e <+88>:	call   0x8049050 <printf@plt>
+   0x08049253 <+93>:	add    esp,0x10
+   0x08049256 <+96>:	sub    esp,0x8
+   0x08049259 <+99>:	push   DWORD PTR [ebp-0xc]
+   0x0804925c <+102>:	lea    eax,[ebx-0x1fe5]
+   0x08049262 <+108>:	push   eax
+   0x08049263 <+109>:	call   0x80490d0 <__isoc99_scanf@plt>
+   0x08049268 <+114>:	add    esp,0x10
+   0x0804926b <+117>:	sub    esp,0xc
+   0x0804926e <+120>:	lea    eax,[ebx-0x1fcf]
+   0x08049274 <+126>:	push   eax
+   0x08049275 <+127>:	call   0x8049090 <puts@plt>
+   0x0804927a <+132>:	add    esp,0x10
+   0x0804927d <+135>:	cmp    DWORD PTR [ebp-0x10],0x1e240
+   0x08049284 <+142>:	jne    0x80492ce <login+216>
+   0x08049286 <+144>:	cmp    DWORD PTR [ebp-0xc],0xcc07c9
+   0x0804928d <+151>:	jne    0x80492ce <login+216>
+   0x0804928f <+153>:	sub    esp,0xc
+   0x08049292 <+156>:	lea    eax,[ebx-0x1fc3]
+   0x08049298 <+162>:	push   eax
+   0x08049299 <+163>:	call   0x8049090 <puts@plt>
+   0x0804929e <+168>:	add    esp,0x10
+   0x080492a1 <+171>:	call   0x8049080 <getegid@plt>
+   0x080492a6 <+176>:	mov    esi,eax
+   0x080492a8 <+178>:	call   0x8049080 <getegid@plt>
+   0x080492ad <+183>:	sub    esp,0x8
+   0x080492b0 <+186>:	push   esi
+   0x080492b1 <+187>:	push   eax
+   0x080492b2 <+188>:	call   0x80490c0 <setregid@plt>
+   0x080492b7 <+193>:	add    esp,0x10
+   0x080492ba <+196>:	sub    esp,0xc
+   0x080492bd <+199>:	lea    eax,[ebx-0x1fb9]
+   0x080492c3 <+205>:	push   eax
+   0x080492c4 <+206>:	call   0x80490a0 <system@plt>
+   0x080492c9 <+211>:	add    esp,0x10
+   0x080492cc <+214>:	jmp    0x80492ea <login+244>
+   0x080492ce <+216>:	sub    esp,0xc
+   0x080492d1 <+219>:	lea    eax,[ebx-0x1fab]
+   0x080492d7 <+225>:	push   eax
+   0x080492d8 <+226>:	call   0x8049090 <puts@plt>
+   0x080492dd <+231>:	add    esp,0x10
+   0x080492e0 <+234>:	sub    esp,0xc
+   0x080492e3 <+237>:	push   0x0
+   0x080492e5 <+239>:	call   0x80490b0 <exit@plt>
+   0x080492ea <+244>:	nop
+   0x080492eb <+245>:	lea    esp,[ebp-0x8]
+   0x080492ee <+248>:	pop    ebx
+   0x080492ef <+249>:	pop    esi
+   0x080492f0 <+250>:	pop    ebp
+   0x080492f1 <+251>:	ret
+End of assembler dump.
+```
+## address of each variable
+- 두 함수의 ebp는 모두 함수 호출 직후의 esp값이다.
+- 두 함수 호출 직후에 esp 값이 같다면 두 ebp는 서로 같다.
+
+**main에서 welcome, login을 호출하는 부분**
+```asm
+   0x08049390 <+44>:	call   0x80492f2 <welcome>
+   0x08049395 <+49>:	call   0x80491f6 <login>
+```
+- welcome 반환 후에 스택에 변화를 주지 않는다. 두 함수의 호출 직후 esp값은 동일하다.
+
+**func welcome:**
+- name: ebp - 0x70
+
+**func login:**
+- passcode1: ebp - 0x10
+- passcode2: ebp - 0x0c
+
+**name을 기준으로 두고 passcode1, passcode2가 될 위치에 값 쓰기**
+- passcode1: ebp - 0x10 = ebp - 0x70 + 0x60 = name + 96
+- passcode2: ebp - 0x0c = ebp - 0x70 + 0x64 = name + 100
+
+**welcome: scanf 호출 방식**
+`scanf("%100s", name);`
+- 96B는 아무 값이나 쓰고, 123456(passcode1) 4B 쓰고, 13371337 4B 쓴다.
+- 100B는 scanf 내부 버퍼에 저장되고, name에 저장하면서 소비된다.
+  - 123456 -> 0x0001e240 -> 40 e2 01 00 (귀신같이 마지막에 \0로 끝난다...)
+  - \0을 읽었으니 EOF? \0이랑 EOF랑 다르다. \0 포함해서 white-space 나오기 전까지 읽을 수 있다.
+- 100B 처리하고 나서 파일 포인터는 passcode2 부분을 가리킨다.
+- passcode2는 어떻게 쓰냐 하...
