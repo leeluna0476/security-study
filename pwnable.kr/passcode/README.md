@@ -275,6 +275,7 @@ pwndbg> x $ebp - 0x10
 ## ASLR and NO-PIE
 - ASLR (Address Space Layout Randomization)
   - 운영체제는 스택, 힙 등의 주소를 실행할 때마다 랜덤하게 배치한다.
+  - base가 되는 주소만 바뀌고, 변수들 간의 상대적인 거리는 유지된다.
 - PIE (Position-Independent Executable)
   - PIC (Position-Independent Code)로 작성되어, 메모리 어디에 올라가도 상관없는 프로그램.
   - `ebp - 0x10`과 같이, 상대 주소를 이용하여 메모리에 접근한다.
