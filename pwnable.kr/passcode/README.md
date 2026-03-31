@@ -1,63 +1,96 @@
 # the key solution
+- gdb 내에서 zero flag를 1로 설정하여 jne를 통과하도록 한다?
+  - 갑자기 broken pipe 문제가 생겨서 서버에서 튕겨나왔다. 아직 성공하지 못함.
+
+- 정상적인 입력을 줄 수 있는 통로가 welcome의 name변수 뿐이다. 이걸 가지고 login의 passcode1, passcode2에 값을 줄 수 있을까?
+  - 서로 다른 함수인데... 어카누
+  - welcome이 반환되고 나서 원래 name이었던 메모리 영역에 passcode1, passcode2가 정의된다. name의 값들이 쓰레기값으로 남아있다.
+  - name 메모리 영역 내에서 passcode1, passcode2가 어디에 위치할지 계산하고 그 위치에 123456, 13371337을 쓰면 된다.
+
+**executable format**
+- ELF32
+- 참고: SYSTEM V APPLICATION BINARY INTERFACE - Intel386 Architecture Processor Supplement
+```
+passcode@ubuntu:~$ readelf -h passcode
+ELF Header:
+  Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00
+  Class:                             ELF32
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              EXEC (Executable file)
+  Machine:                           Intel 80386
+  Version:                           0x1
+  Entry point address:               0x80490e0
+  Start of program headers:          52 (bytes into file)
+  Start of section headers:          14072 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               52 (bytes)
+  Size of program headers:           32 (bytes)
+  Number of program headers:         11
+  Size of section headers:           40 (bytes)
+  Number of section headers:         29
+  Section header string table index: 28
+```
+
+**welcome dump**
 ```asm
-pwndbg> ni
-0x080492c4 in login ()
-LEGEND: STACK | HEAP | CODE | DATA | WX | RODATA
-────────────────────────────────────────────[ REGISTERS / show-flags off / show-compact-regs off ]─────────────────────────────────────────────
- EAX  0x804a047 ◂— '/bin/cat flag'
- EBX  0x804c000 (_GLOBAL_OFFSET_TABLE_) —▸ 0x804bf10 (_DYNAMIC) ◂— 1
- ECX  0x3f2
- EDX  0
- EDI  0xf7f11b80 (_rtld_global_ro) ◂— 0
- ESI  0x3f2
- EBP  0xffc7e908 —▸ 0xffc7e918 —▸ 0xf7f12020 (_rtld_global) —▸ 0xf7f12a40 ◂— 0
-*ESP  0xffc7e8e0 —▸ 0x804a047 ◂— '/bin/cat flag'
-*EIP  0x80492c4 (login+206) ◂— call system@plt
-──────────────────────────────────────────────────────[ DISASM / i386 / set emulate off ]──────────────────────────────────────────────────────
-   0x80492b2 <login+188>    call   setregid@plt                <setregid@plt>
-
-   0x80492b7 <login+193>    add    esp, 0x10               ESP => 0xffc7e8e0 + 0x10
-   0x80492ba <login+196>    sub    esp, 0xc                ESP => 0xffc7e8f0 - 0xc
-   0x80492bd <login+199>    lea    eax, [ebx - 0x1fb9]     EAX => 0x804a047 ◂— '/bin/cat flag'
-   0x80492c3 <login+205>    push   eax
- ► 0x80492c4 <login+206>    call   system@plt                  <system@plt>
-        command: 0x804a047 ◂— '/bin/cat flag'
-
-   0x80492c9 <login+211>    add    esp, 0x10
-   0x80492cc <login+214>    jmp    login+244                   <login+244>
-    ↓
-   0x80492ea <login+244>    nop
-   0x80492eb <login+245>    lea    esp, [ebp - 8]
-   0x80492ee <login+248>    pop    ebx
-───────────────────────────────────────────────────────────────────[ STACK ]───────────────────────────────────────────────────────────────────
-00:0000│ esp 0xffc7e8e0 —▸ 0x804a047 ◂— '/bin/cat flag'
-01:0004│-024 0xffc7e8e4 ◂— 0x3f2
-02:0008│-020 0xffc7e8e8 —▸ 0xf7d71370 (getegid+16) ◂— ret
-03:000c│-01c 0xffc7e8ec —▸ 0x80492ad (login+183) ◂— sub esp, 8
-04:0010│-018 0xffc7e8f0 —▸ 0xffc7e9e4 —▸ 0xffc7fd35 ◂— '/home/passcode/passcode'
-05:0014│-014 0xffc7e8f4 —▸ 0xf7f11b80 (_rtld_global_ro) ◂— 0
-06:0018│-010 0xffc7e8f8 —▸ 0xffc7e918 —▸ 0xf7f12020 (_rtld_global) —▸ 0xf7f12a40 ◂— 0
-07:001c│-00c 0xffc7e8fc ◂— 0x2138e00
-─────────────────────────────────────────────────────────────────[ BACKTRACE ]─────────────────────────────────────────────────────────────────
- ► 0 0x80492c4 login+206
-   1 0x804939a main+54
-   2 0xf7cb3519 __libc_start_call_main+121
-   3 0xf7cb35f3 __libc_start_main+147
-   4 0x804910c _start+44
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-pwndbg> ni
-[Attaching after Thread 0xf7ed4500 (LWP 1013837) vfork to child process 1095308]
-[New inferior 2 (process 1095308)]
-[Thread debugging using libthread_db enabled]
-Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
-[Detaching vfork parent process 1013837 after child exec]
-[Inferior 1 (process 1013837) detached]
-process 1095308 is executing new program: /usr/bin/dash
-Error in re-setting breakpoint 1: Function "login" not defined.
-Error in re-setting breakpoint 2: Function "login" not defined.
-Warning:
-Cannot insert breakpoint 3.
-Cannot access memory at address 0x804927d
-
-pwndbg>
+pwndbg> disassemble welcome
+Dump of assembler code for function welcome:
+   0x080492f2 <+0>:	push   ebp
+   0x080492f3 <+1>:	mov    ebp,esp
+   0x080492f5 <+3>:	push   ebx
+   0x080492f6 <+4>:	sub    esp,0x74
+   0x080492f9 <+7>:	call   0x8049130 <__x86.get_pc_thunk.bx>
+   0x080492fe <+12>:	add    ebx,0x2d02
+   0x08049304 <+18>:	mov    eax,gs:0x14
+   0x0804930a <+24>:	mov    DWORD PTR [ebp-0xc],eax
+   0x0804930d <+27>:	xor    eax,eax
+   0x0804930f <+29>:	sub    esp,0xc
+   0x08049312 <+32>:	lea    eax,[ebx-0x1f9d]
+   0x08049318 <+38>:	push   eax
+   0x08049319 <+39>:	call   0x8049050 <printf@plt>
+   ; esp = ebp - 0x74 + 0x10 = ebp - 0x64 = ebp - 100
+   0x0804931e <+44>:	add    esp,0x10
+   ; esp - 0x8 = ebp - 100 - 8 = ebp - 108
+   ; 8B 공간 더 마련함.
+   ; name(주소, 8B)을 저장할 공간인가, 아니 주소는 4B.
+   ; 놉. 그냥 align용인 듯. 아래 줄에서 4바이트 push하니까.
+   ; word align (word=4B, 굳이 필요없어 보이는데..)
+   0x08049321 <+47>:	sub    esp,0x8
+   ; ebp - 0x70에서 4B 읽어 스택에 푸시한다.
+   ; esp = ebp - 100, push -> esp = ebp - 108 - 4 = ebp - 112
+   ; -> esp = ebp - 0x70
+   ; 에에 그냥 그 자리에 똑같은 거 push한 거네
+   0x08049324 <+50>:	lea    eax,[ebp-0x70]
+   0x08049327 <+53>:	push   eax
+   ; <abi386>
+   ; ebx -> holds GOT(Global Offset Table) base address
+   ; string literal과 같은 global data에 접근하기 위한 용도로 사용됨.
+   0x08049328 <+54>:	lea    eax,[ebx-0x1f8b]
+   0x0804932e <+60>:	push   eax
+   ; argument words are pushed to stack
+   ; the rightmost argument has the highest address
+   ; 가장 최근에 push된 global data -> format string
+   ; 그 전에 push된 [ebp - 0x70]
+   0x0804932f <+61>:	call   0x80490d0 <__isoc99_scanf@plt>
+   ;
+   0x08049334 <+66>:	add    esp,0x10
+   0x08049337 <+69>:	sub    esp,0x8
+   0x0804933a <+72>:	lea    eax,[ebp-0x70]
+   0x0804933d <+75>:	push   eax
+   0x0804933e <+76>:	lea    eax,[ebx-0x1f85]
+   0x08049344 <+82>:	push   eax
+   0x08049345 <+83>:	call   0x8049050 <printf@plt>
+   0x0804934a <+88>:	add    esp,0x10
+   0x0804934d <+91>:	nop
+   0x0804934e <+92>:	mov    eax,DWORD PTR [ebp-0xc]
+   0x08049351 <+95>:	sub    eax,DWORD PTR gs:0x14
+   0x08049358 <+102>:	je     0x804935f <welcome+109>
+   0x0804935a <+104>:	call   0x80493c0 <__stack_chk_fail_local>
+   0x0804935f <+109>:	mov    ebx,DWORD PTR [ebp-0x4]
+   0x08049362 <+112>:	leave
+   0x08049363 <+113>:	ret
+End of assembler dump.
 ```
