@@ -242,3 +242,12 @@ Dump of assembler code for function welcome:
 |   ebx    | ebp - 0x04
 |   ebp    | ebp
 ```
+
+**만약 주소가 매번 동일하고, 123456이 passcode2의 주소, 13371337이 passcode1의 주소라면?**
+- 유감스럽게도 아닙니다...
+```asm
+pwndbg> x $ebp - 0xc
+0xffd75cbc:	0xb2affa00
+pwndbg> x $ebp - 0x10
+0xffd75cb8:	0xffd75cd8
+```
