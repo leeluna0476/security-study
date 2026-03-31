@@ -219,3 +219,26 @@ pwndbg> x $ebp - 0xc
 0xff92007c:	0x47906d00
 ```
 - passcode2 안된다고 안된다고 ㅜㅜㅜ
+
+- passcode2 위치는 name(ebp - 0x70) 끝부분에 연속적이다.
+- welcome함수에서 name 메모리를 확보하기 전에 뭘 하는지 보자.
+```asm
+Dump of assembler code for function welcome:
+   0x080492f2 <+0>:	push   ebp
+   0x080492f3 <+1>:	mov    ebp,esp
+   0x080492f5 <+3>:	push   ebx
+   0x080492f6 <+4>:	sub    esp,0x74
+```
+- ebp를 함수 호출 초기 esp로 지정하고, esp 감소시켜 0x74=116B 확보한다. (중간에 ebx도 push한다.)
+```
+1cell = 4B
+|          | ebp - 0x74 = esp
+|   aaaa   | ebp - 0x70 = name
+|   aaaa   | ebp - 0x6c
+|    ...   |
+|0x0001e2f0| ebp - 0x10 = (passcode1) 
+|          | ebp - 0x0c = (passcode2) 
+|          | ebp - 0x08
+|   ebx    | ebp - 0x04
+|   ebp    | ebp
+```
