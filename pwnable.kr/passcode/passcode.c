@@ -11,18 +11,18 @@ void login(){
 
 	// ha! mommy told me that 32bit is vulnerable to bruteforcing :)
 	printf("enter passcode2 : ");
-        scanf("%d", passcode2);
+	scanf("%d", passcode2);
 
 	printf("checking...\n");
 	if(passcode1==123456 && passcode2==13371337){
-                printf("Login OK!\n");
+		printf("Login OK!\n");
 		setregid(getegid(), getegid());
-                system("/bin/cat flag");
-        }
-        else{
-                printf("Login Failed!\n");
+		system("/bin/cat flag");
+	}
+	else{
+		printf("Login Failed!\n");
 		exit(0);
-        }
+	}
 }
 
 void welcome(){
