@@ -1,4 +1,4 @@
-# the key solution
+# 풀이 과정
 - &key: `ebp + 0x8
 - overflowme: `ebp - 0x2c`
 - 8 - (-44) = 52 -> 52B 떨어져 있음. 둘이 연속적으로 위치하지 않는다.
