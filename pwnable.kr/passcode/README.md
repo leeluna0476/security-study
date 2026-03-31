@@ -229,6 +229,7 @@ Dump of assembler code for function welcome:
 |   ebx    | ebp - 0x04
 |   ebp    | ebp
 ```
+- 특별한 건 없다...
 
 **passcode1에 passcode2의 주소를 적는다면?**
 - `scanf("%d", passcode1)`에서 passcode2에 값을 쓰도록 하는 것이다.
