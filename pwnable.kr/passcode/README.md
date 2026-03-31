@@ -236,7 +236,7 @@ Dump of assembler code for function welcome:
 |          | ebp - 0x74
 |   aaaa   | ebp - 0x70 = (name)
 |    ...   |
-|0x0001e2f0| ebp - 0x10 = (passcode1) 
+|0x0001e240| ebp - 0x10 = (passcode1) 
 |          | ebp - 0x0c = (passcode2) 
 |          | ebp - 0x08
 |   ebx    | ebp - 0x04
