@@ -1,11 +1,8 @@
-# the key solution
-- gdb 내에서 zero flag를 1로 설정하여 jne를 통과하도록 한다?
-  - 갑자기 broken pipe 문제가 생겨서 서버에서 튕겨나왔다. 아직 성공하지 못함.
-
+# 풀이 과정
 - 정상적인 입력을 줄 수 있는 통로가 welcome의 name변수 뿐이다. 이걸 가지고 login의 passcode1, passcode2에 값을 줄 수 있을까?
   - 서로 다른 함수인데... 어카누
   - welcome이 반환되고 나서 원래 name이었던 메모리 영역에 passcode1, passcode2가 정의된다. name의 값들이 쓰레기값으로 남아있다.
-  - name 메모리 영역 내에서 passcode1, passcode2가 어디에 위치할지 계산하고 그 위치에 123456, 13371337을 쓰면 된다.
+  - name을 기준으로 두고 passcode1, passcode2가 어디에 위치할지 계산하고 그 위치에 123456, 13371337을 쓰면 된다.
 
 **executable format**
 - ELF32
@@ -51,23 +48,13 @@ Dump of assembler code for function welcome:
    0x08049312 <+32>:	lea    eax,[ebx-0x1f9d]
    0x08049318 <+38>:	push   eax
    0x08049319 <+39>:	call   0x8049050 <printf@plt>
-   ; esp = ebp - 0x74 + 0x10 = ebp - 0x64 = ebp - 100
    0x0804931e <+44>:	add    esp,0x10
-   ; esp - 0x8 = ebp - 100 - 8 = ebp - 108
-   ; 8B 공간 더 마련함.
-   ; name(주소, 8B)을 저장할 공간인가, 아니 주소는 4B.
-   ; 놉. 그냥 align용인 듯. 아래 줄에서 4바이트 push하니까.
-   ; word align (word=4B, 굳이 필요없어 보이는데..)
    0x08049321 <+47>:	sub    esp,0x8
-   ; ebp - 0x70에서 4B 읽어 스택에 푸시한다.
-   ; esp = ebp - 100, push -> esp = ebp - 108 - 4 = ebp - 112
-   ; -> esp = ebp - 0x70
-   ; 에에 그냥 그 자리에 똑같은 거 push한 거네
    ; lea: 데이터가 저장된 위치의 주소 계산. c언어의 &연산과 동일.
    ; int *p = ebp - 0x70; int *eax = &(*p); 이것과 비슷하다.
    0x08049324 <+50>:	lea    eax,[ebp-0x70]
    0x08049327 <+53>:	push   eax
-   ; <abi386>
+   ; according to <abi386>,
    ; ebx -> holds GOT(Global Offset Table) base address
    ; string literal과 같은 global data에 접근하기 위한 용도로 사용됨.
    0x08049328 <+54>:	lea    eax,[ebx-0x1f8b]
@@ -75,9 +62,8 @@ Dump of assembler code for function welcome:
    ; argument words are pushed to stack
    ; the rightmost argument has the highest address
    ; 가장 최근에 push된 global data -> format string
-   ; 그 전에 push된 [ebp - 0x70]
+   ; 그 전에 push된 ebp - 0x70가 바로 name.
    0x0804932f <+61>:	call   0x80490d0 <__isoc99_scanf@plt>
-   ;
    0x08049334 <+66>:	add    esp,0x10
    0x08049337 <+69>:	sub    esp,0x8
    0x0804933a <+72>:	lea    eax,[ebp-0x70]
@@ -114,6 +100,7 @@ Dump of assembler code for function login:
    0x08049213 <+29>:	call   0x8049050 <printf@plt>
    0x08049218 <+34>:	add    esp,0x10
    0x0804921b <+37>:	sub    esp,0x8
+   ; password1 -> ebp - 0x10
    0x0804921e <+40>:	push   DWORD PTR [ebp-0x10]
    0x08049221 <+43>:	lea    eax,[ebx-0x1fe5]
    0x08049227 <+49>:	push   eax
@@ -131,6 +118,7 @@ Dump of assembler code for function login:
    0x0804924e <+88>:	call   0x8049050 <printf@plt>
    0x08049253 <+93>:	add    esp,0x10
    0x08049256 <+96>:	sub    esp,0x8
+   ; password2 -> ebp - 0xc
    0x08049259 <+99>:	push   DWORD PTR [ebp-0xc]
    0x0804925c <+102>:	lea    eax,[ebx-0x1fe5]
    0x08049262 <+108>:	push   eax
@@ -198,7 +186,7 @@ End of assembler dump.
 - passcode1: ebp - 0x10
 - passcode2: ebp - 0x0c
 
-**name을 기준으로 두고 passcode1, passcode2가 될 위치에 값 쓰기**
+## name을 기준으로 두고 passcode1, passcode2가 될 위치에 값 쓰기
 - passcode1: ebp - 0x10 = ebp - 0x70 + 0x60 = name + 96
 - passcode2: ebp - 0x0c = ebp - 0x70 + 0x64 = name + 100
 
@@ -211,14 +199,13 @@ End of assembler dump.
   - 123456 = 0x0001e240 -> 40 e2 01 00 (귀신같이 마지막에 \0로 끝난다...)
   - \0을 읽었으니 EOF? 놉. \0이랑 EOF랑 다르다. \0 포함해서 white-space 나오기 전까지 읽을 수 있다.
 - 100B 처리하고 나서 파일 포인터는 passcode2 부분을 가리킨다.
-- passcode2는 어떻게 쓰냐 하...
+- passcode2는 어떻게 쓰지?
 ```asm
 pwndbg> x $ebp - 0x10
 0xff920078:	0x0001e240
 pwndbg> x $ebp - 0xc
 0xff92007c:	0x47906d00
 ```
-- passcode2 안된다고 안된다고 ㅜㅜㅜ
 
 - passcode2 위치는 name(ebp - 0x70) 끝부분에 연속적이다.
 - welcome함수에서 name 메모리를 확보하기 전에 뭘 하는지 보자.
@@ -243,6 +230,11 @@ Dump of assembler code for function welcome:
 |   ebp    | ebp
 ```
 
+**passcode1에 passcode2의 주소를 적는다면?**
+- `scanf("%d", passcode1)`에서 passcode2에 값을 쓰도록 하는 것이다.
+- passcode2의 절대적인 주소는 알 수 없다. 실행할 때마다 ebp값이 바뀌더라.
+- 설령 주소를 안다고 해도, passcode2에는 13371337을 적을 수 있지만 passcode1에 123456을 적을 방법이 없다.
+
 **만약 주소가 매번 동일하고, 123456이 passcode2의 주소, 13371337이 passcode1의 주소라면?**
 - 유감스럽게도 아닙니다...
 ```asm
@@ -251,3 +243,30 @@ pwndbg> x $ebp - 0xc
 pwndbg> x $ebp - 0x10
 0xffd75cb8:	0xffd75cd8
 ```
+- 심지어 매번 바뀐다...
+
+-> passcode1과 passcode2에 모두 접근할 방법이 없다.
+
+## GOT(Global Offset Table) 조작
+- passcode1에 fflush의 GOT 주소를 적고, 거기에 점프하고 싶은 주소를 적는다.
+- GOT 섹션은 프로세스 실행 후에도 조작 가능하다. 보통 Lazy Binding이라고, 동적 라이브러리 함수를 처음 호출할 때 그 주소를 찾아서(dynamic loader가 찾는다) GOT 섹션에 기록한다. 섹션 위치만 알면 프로세스가 실행되는 도중에 직접 값을 쓸 수도 있다는 뜻이다.
+
+**`objdump -d passcode`**
+```asm
+08049060 <fflush@plt>:
+; jmp *0x804c014 -> 0x804c014(GOT fflush section address)의 값을 읽어서 그 값(주소)으로 점프한다.
+; 0x804c014에 system 주소를 넣으면 된다.
+; 아 권한이 필요하니 그냥 if블럭 시작 주소를 넣으면 되겠다.
+ 8049060:	ff 25 14 c0 04 08    	jmp    *0x804c014
+ 8049066:	68 10 00 00 00       	push   $0x10
+ 804906b:	e9 c0 ff ff ff       	jmp    8049030 <_init+0x30>
+
+
+080490a0 <system@plt>:
+ 80490a0:	ff 25 24 c0 04 08    	jmp    *0x804c024
+ 80490a6:	68 30 00 00 00       	push   $0x30
+ 80490ab:	e9 80 ff ff ff       	jmp    8049030 <_init+0x30>
+ ```
+
+**입력 데이터 생성 스크립트:** `input.py`
+ -> 성공.
