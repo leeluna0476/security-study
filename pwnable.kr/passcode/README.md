@@ -232,9 +232,9 @@ Dump of assembler code for function welcome:
 - ebp를 함수 호출 초기 esp로 지정하고, esp 감소시켜 0x74=116B 확보한다. (중간에 ebx도 push한다.)
 ```
 1cell = 4B
-|          | ebp - 0x74 = esp
-|   aaaa   | ebp - 0x70 = name
-|   aaaa   | ebp - 0x6c
+|          | ebp - 0x78 = esp
+|          | ebp - 0x74
+|   aaaa   | ebp - 0x70 = (name)
 |    ...   |
 |0x0001e2f0| ebp - 0x10 = (passcode1) 
 |          | ebp - 0x0c = (passcode2) 
