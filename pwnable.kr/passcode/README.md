@@ -169,8 +169,8 @@ Dump of assembler code for function login:
 End of assembler dump.
 ```
 ## address of each variable
-- 두 함수의 ebp는 모두 함수 호출 직후의 esp값이다.
-- 두 함수 호출 직후에 esp 값이 같다면 두 ebp는 서로 같다.
+- 두 함수의 `ebp`는 모두 함수 호출 직후의 esp값이다.
+- 두 함수 호출 직후에 esp 값이 같다면 두 `ebp`는 서로 같다.
 
 **main에서 welcome, login을 호출하는 부분**
 ```asm
@@ -180,24 +180,24 @@ End of assembler dump.
 - welcome 반환 후에 스택에 변화를 주지 않는다. 두 함수의 호출 직후 esp값은 동일하다.
 
 **func welcome:**
-- name: ebp - 0x70
+- name: `ebp - 0x70`
 
 **func login:**
-- passcode1: ebp - 0x10
-- passcode2: ebp - 0x0c
+- passcode1: `ebp - 0x10`
+- passcode2: `ebp - 0x0c`
 
 ## name을 기준으로 두고 passcode1, passcode2가 될 위치에 값 쓰기
-- passcode1: ebp - 0x10 = ebp - 0x70 + 0x60 = name + 96
-- passcode2: ebp - 0x0c = ebp - 0x70 + 0x64 = name + 100
+- passcode1: `ebp - 0x10 = ebp - 0x70 + 0x60 = name + 96`
+- passcode2: `ebp - 0x0c = ebp - 0x70 + 0x64 = name + 100`
 
 **welcome: scanf 호출 방식**
 `scanf("%100s", name);`
 
 **입력 데이터**
-- 96B: 아무 값, 4B: 123456(passcode1), 4B: 1337133(passcode2).
+- 96B: 아무 값, 4B: `123456`(passcode1), 4B: `1337133`(passcode2).
 - 100B는 먼저 scanf 내부 버퍼에 저장되고, name에 저장하면서 소비된다.
-  - 123456 = 0x0001e240 -> 40 e2 01 00 (귀신같이 마지막에 \0로 끝난다...)
-  - \0을 읽었으니 EOF? 놉. \0이랑 EOF랑 다르다. \0 포함해서 white-space 나오기 전까지 읽을 수 있다.
+  - `123456 = 0x0001e240 -> 40 e2 01 00` (귀신같이 마지막에 `\0`로 끝난다...)
+  - `\0`을 읽었으니 `EOF`? 놉. `\0`이랑 `EOF`랑 다르다. `\0` 포함해서 `white-space` 나오기 전까지 읽을 수 있다.
 - 100B 처리하고 나서 파일 포인터는 passcode2 부분을 가리킨다.
 - passcode2는 어떻게 쓰지?
 ```asm
@@ -207,7 +207,7 @@ pwndbg> x $ebp - 0xc
 0xff92007c:	0x47906d00
 ```
 
-- passcode2 위치는 name(ebp - 0x70) 끝부분에 연속적이다.
+- passcode2 위치는 name(`ebp - 0x70`) 끝부분에 연속적이다.
 - welcome함수에서 name 메모리를 확보하기 전에 뭘 하는지 보자.
 ```asm
 Dump of assembler code for function welcome:
@@ -216,7 +216,7 @@ Dump of assembler code for function welcome:
    0x080492f5 <+3>:	push   ebx
    0x080492f6 <+4>:	sub    esp,0x74
 ```
-- ebp를 함수 호출 초기 esp로 지정하고, esp 감소시켜 0x74=116B 확보한다. (중간에 ebx도 push한다.)
+- `ebp`를 함수 호출 초기 `esp`로 지정하고, `esp` 감소시켜 `0x74=116B` 확보한다. (중간에 `ebx`도 `push`한다.)
 ```
 1cell = 4B
 |          | ebp - 0x78 = esp
@@ -234,7 +234,7 @@ Dump of assembler code for function welcome:
 **passcode1에 passcode2의 주소를 적는다면?**
 - `scanf("%d", passcode1)`에서 passcode2에 값을 쓰도록 하는 것이다.
 - passcode2의 절대적인 주소는 알 수 없다. 실행할 때마다 ebp값이 바뀌더라.
-- 설령 주소를 안다고 해도, passcode2에는 13371337을 적을 수 있지만 passcode1에 123456을 적을 방법이 없다.
+- 설령 주소를 안다고 해도, passcode2에는 `13371337`을 적을 수 있지만 passcode1에 `123456`을 적을 방법이 없다.
 
 **만약 주소가 매번 동일하고, 123456이 passcode2의 주소, 13371337이 passcode1의 주소라면?**
 - 유감스럽게도 아닙니다...
