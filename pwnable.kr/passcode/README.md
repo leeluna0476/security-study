@@ -169,15 +169,15 @@ Dump of assembler code for function login:
 End of assembler dump.
 ```
 ## address of each variable
-- 두 함수의 `ebp`는 모두 함수 호출 직후의 esp값이다.
-- 두 함수 호출 직후에 esp 값이 같다면 두 `ebp`는 서로 같다.
+- 두 함수의 `ebp`는 모두 함수 호출 직후의 `esp`값이다.
+- 두 함수 호출 직후에 `esp` 값이 같다면 두 `ebp`는 서로 같다.
 
 **main에서 welcome, login을 호출하는 부분**
 ```asm
    0x08049390 <+44>:	call   0x80492f2 <welcome>
    0x08049395 <+49>:	call   0x80491f6 <login>
 ```
-- welcome 반환 후에 스택에 변화를 주지 않는다. 두 함수의 호출 직후 esp값은 동일하다.
+- welcome 반환 후에 스택에 변화를 주지 않는다. 두 함수의 호출 직후 `esp`값은 동일하다.
 
 **func welcome:**
 - name: `ebp - 0x70`
