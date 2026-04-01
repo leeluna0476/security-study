@@ -250,7 +250,7 @@ pwndbg> x $ebp - 0x10
 
 ## GOT(Global Offset Table) 조작
 - passcode1에 fflush의 GOT 주소를 적고, 거기에 점프하고 싶은 주소를 적는다.
-- GOT 섹션은 프로세스 실행 후에도 조작 가능하다. 보통 Lazy Binding이라고, 동적 라이브러리 함수를 처음 호출할 때 그 주소를 찾아서(dynamic loader가 찾는다) GOT 섹션에 기록한다. 섹션 위치만 알면 프로세스가 실행되는 도중에 직접 값을 쓸 수도 있다는 뜻이다.
+- GOT 섹션은 프로세스 실행 후에도 조작 가능하다. 보통 Lazy Binding이라고, 동적 라이브러리 함수를 처음 호출할 때 그 주소를 찾아서(dynamic linker가 찾는다) GOT 섹션에 기록한다. 섹션 위치만 알면 프로세스가 실행되는 도중에 직접 값을 쓸 수도 있다는 뜻이다.
 
 **`objdump -d passcode`**
 ```asm
